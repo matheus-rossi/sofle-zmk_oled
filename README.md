@@ -19,6 +19,23 @@ Para prosseguir com a personalização e instalação do seu teclado sugerimos q
 1. [Configuração manual](#configuração-manual)
 2. [Configuração visual](#configuração-visual)
 
+### Configuração atual deste fork
+
+Este fork está configurado para um Sofle sem OLED, com duas nice!nano v2:
+
+- Os níveis das baterias esquerda e direita são enviados por Bluetooth ao sistema operacional.
+- O teclado entra em deep sleep após 1 hora sem uso. Uma tecla acorda a respectiva metade; pressione primeiro uma tecla da esquerda para acordar a central. A reconexão pode levar alguns segundos.
+- RGB e display estão desativados para economizar bateria.
+- `CONFIG_ZMK_BLE_EXPERIMENTAL_CONN=y` e potência de transmissão `+8 dBm` permanecem ativos para estabilidade.
+- `CONFIG_BT_PERIPHERAL_PREF_MIN_INT=12` contorna o problema do macOS que usa latência BLE zero e aumenta o consumo em repouso.
+- ZMK Studio está desativado; o Keymap Editor e a edição manual continuam funcionando normalmente.
+- A revisão do ZMK está fixada em `641514a97db345f499dd50b0360e594270f008fe` para builds reproduzíveis.
+
+As opções ficam em `config/sofle.conf`, os alvos em `build.yaml` e a revisão do ZMK em `config/west.yml`. Após alterar uma opção comum, atualize o firmware das duas metades.
+
+#### Bateria e recarga
+
+Mantenha a chave da metade em **ON** durante a recarga. Um nível de 100% enquanto o USB está conectado pode refletir a alimentação USB, não a carga real; confirme desconectando o cabo. Se a metade cair imediatamente para 0% ou desligar, verifique a bateria, o conector e a chave física.
 
 ### Configuração manual
 
@@ -79,6 +96,8 @@ Veja a seção [Instalação](#instalação) para prosseguir com a instalação 
 ---
 
 #### ZMK STUDIO
+
+> Neste fork, o ZMK Studio está desativado para reduzir a complexidade e evitar problemas conhecidos ao acordar do deep sleep. Ao desativá-lo, perde-se apenas a alteração ao vivo do keymap sem recompilar. Para reativá-lo, restaure o snippet `studio-rpc-usb-uart` e `-DCONFIG_ZMK_STUDIO=y` no alvo esquerdo de `build.yaml`.
 
 Esse é a GUI mais nova do ZMK, ainda está em Beta, tem algumas limtações, não gosto de recomendar pois não salva as configs do ZMK direto no github, além de não ter algumas configurações de tap dance e behaviors.
 
