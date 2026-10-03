@@ -29,7 +29,7 @@ Este fork está configurado para um Sofle sem OLED, com duas nice!nano v2:
 - `CONFIG_ZMK_BLE_EXPERIMENTAL_CONN=y` e potência de transmissão `+8 dBm` permanecem ativos para estabilidade.
 - `CONFIG_BT_PERIPHERAL_PREF_MIN_INT=12` contorna o problema do macOS que usa latência BLE zero e aumenta o consumo em repouso.
 - ZMK Studio está desativado; o Keymap Editor e a edição manual continuam funcionando normalmente.
-- A revisão do ZMK está fixada em `641514a97db345f499dd50b0360e594270f008fe` para builds reproduzíveis.
+- A revisão do ZMK está fixada em `5b51501fead672c41b5cfb396f3dafe0894bf4e9` para builds reproduzíveis.
 
 As opções ficam em `config/sofle.conf`, os alvos em `build.yaml` e a revisão do ZMK em `config/west.yml`. Após alterar uma opção comum, atualize o firmware das duas metades.
 
