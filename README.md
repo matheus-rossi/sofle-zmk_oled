@@ -26,7 +26,7 @@ Este fork está configurado para um Sofle sem OLED, com duas nice!nano v2:
 - Os níveis das baterias esquerda e direita são enviados por Bluetooth ao sistema operacional.
 - O teclado entra em deep sleep após 1 hora sem uso. Uma tecla acorda a respectiva metade; pressione primeiro uma tecla da esquerda para acordar a central. A reconexão pode levar alguns segundos.
 - RGB e display estão desativados para economizar bateria.
-- `CONFIG_ZMK_BLE_EXPERIMENTAL_CONN=y` e potência de transmissão `+8 dBm` permanecem ativos para estabilidade.
+- `CONFIG_ZMK_BLE_EXPERIMENTAL_CONN=y` permanece ativo para estabilidade. A potência de transmissão fica no padrão de `0 dBm` para economizar bateria.
 - `CONFIG_BT_PERIPHERAL_PREF_MIN_INT=12` contorna o problema do macOS que usa latência BLE zero e aumenta o consumo em repouso.
 - ZMK Studio está desativado; o Keymap Editor e a edição manual continuam funcionando normalmente.
 - A revisão do ZMK está fixada em `5b51501fead672c41b5cfb396f3dafe0894bf4e9` para builds reproduzíveis.
