@@ -123,6 +123,52 @@ func formatLevel(_ level: Int?) -> String {
     level.map { "\($0)%" } ?? "…"
 }
 
+/// In the style of the RAM/CPU/GPU items: "KBD" stacked on the left, then one bar per half
+/// (left half first) with a coloured fill rising from the bottom (green, yellow from 50%,
+/// red when low). Exact levels are in the tooltip and menu.
+func batteryImage(_ levels: [Int?]) -> NSImage {
+    let labelFont = NSFont.systemFont(ofSize: 7, weight: .semibold)
+    let bar = NSSize(width: 9, height: 18)
+    let labelWidth: CGFloat = 5
+    let labelGap: CGFloat = 2
+    let barGap: CGFloat = 3
+    let height: CGFloat = 22
+    let width = labelWidth + labelGap + (bar.width + barGap) * CGFloat(levels.count) - barGap
+
+    // Coloured, so not a template: colours resolve against the menu bar's appearance at draw time.
+    let image = NSImage(size: NSSize(width: width, height: height), flipped: true) { _ in
+        let rowHeight: CGFloat = 6
+        let top = (height - rowHeight * 3) / 2
+        for (row, letter) in "KBD".enumerated() {
+            let label = NSAttributedString(string: String(letter), attributes: [
+                .font: labelFont, .foregroundColor: NSColor.labelColor,
+            ])
+            let size = label.size()
+            label.draw(at: NSPoint(x: (labelWidth - size.width) / 2,
+                                   y: top + rowHeight * (CGFloat(row) + 0.5) - size.height / 2))
+        }
+
+        for (index, level) in levels.enumerated() {
+            let frame = NSRect(x: labelWidth + labelGap + CGFloat(index) * (bar.width + barGap),
+                               y: (height - bar.height) / 2, width: bar.width, height: bar.height)
+            NSColor.labelColor.withAlphaComponent(0.8).setStroke()
+            let outline = NSBezierPath(roundedRect: frame.insetBy(dx: 0.5, dy: 0.5), xRadius: 2.5, yRadius: 2.5)
+            outline.lineWidth = 1
+            outline.stroke()
+
+            guard let level else { continue }
+            let color: NSColor = level <= lowBattery ? .systemRed : level <= 50 ? .systemYellow : .systemGreen
+            color.setFill()
+            let inner = frame.insetBy(dx: 2, dy: 2)
+            let filled = max(1.5, inner.height * CGFloat(min(level, 100)) / 100)
+            NSBezierPath(roundedRect: NSRect(x: inner.minX, y: inner.maxY - filled, width: inner.width, height: filled),
+                         xRadius: 1, yRadius: 1).fill()
+        }
+        return true
+    }
+    return image
+}
+
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let reader = BatteryReader()
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -138,21 +184,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func render() {
         let levels = reader.levels
-        let title: String
-        let low = levels.contains { ($0 ?? 100) <= lowBattery }
         if levels.isEmpty {
-            title = "–"
+            statusItem.button?.image = nil
+            statusItem.button?.title = "–"
         } else {
-            title = levels.enumerated().map { index, level in
-                "\(halfName(index).prefix(1)) \(formatLevel(level))"
-            }.joined(separator: "  ")
+            statusItem.button?.image = batteryImage(levels)
+            statusItem.button?.title = ""
         }
-        let symbol = low ? "exclamationmark.triangle" : "keyboard"
-        let image = NSImage(systemSymbolName: symbol, accessibilityDescription: "Sofle battery")
-        image?.isTemplate = true
-        statusItem.button?.image = image
-        statusItem.button?.imagePosition = .imageLeading
-        statusItem.button?.title = " " + title
+        statusItem.button?.toolTip = levels.enumerated()
+            .map { "\(halfName($0)): \(formatLevel($1))" }
+            .joined(separator: "\n")
 
         let menu = NSMenu()
         if levels.isEmpty {
